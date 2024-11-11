@@ -1,46 +1,56 @@
 package main
 
+import "common"
 import "core:fmt"
-import rl "vendor:raylib"
 import "entities"
+import rl "vendor:raylib"
 
-WIDTH :i32: 640
-HEIGHT :i32: 480
 
 Game :: struct {
-    defender: entities.Defender
+	defender: entities.Defender,
+	alien:    entities.Alien,
 }
 
-init_game :: proc() -> Game {
-    rl.InitWindow(WIDTH, HEIGHT, "Space invaders")
-    defender := entities.init_defender()
-    return Game{
-        defender
-    }
+game_init :: proc() -> Game {
+	rl.InitWindow(common.WIDTH, common.HEIGHT, "Space invaders")
+	rl.SetTargetFPS(60)
+	defender := entities.defender_init()
+	alien := entities.alien_init()
+	game := Game {
+		defender = defender,
+		alien    = alien,
+	}
+	return game
 }
 
-update_game :: proc(game: ^Game) {
-    entities.update_defender(&game.defender)
+game_update :: proc(game: ^Game) {
+	entities.defender_update(&game.defender)
+	entities.alien_update(&game.alien)
 }
 
-draw_game :: proc(game: Game) {
-    rl.BeginDrawing()
+game_draw :: proc(game: Game) {
+	rl.BeginDrawing()
 
-    rl.ClearBackground(rl.BLACK)
+	rl.ClearBackground(rl.BLACK)
 
-    entities.draw_defender(game.defender)
-    
-    rl.EndDrawing()
+	entities.defender_draw(game.defender)
+	entities.alien_draw(game.alien)
+
+	rl.EndDrawing()
 }
 
-run_game :: proc(game: ^Game) {
-    for !rl.WindowShouldClose() {
-        update_game(game)
-        draw_game(game^)
-    }
+game_run :: proc(game: ^Game) {
+	fmt.println(game^)
+	for !rl.WindowShouldClose() {
+		game_update(game)
+		game_draw(game^)
+	}
 }
 
 main :: proc() {
-    game := init_game()
-    run_game(&game)
+	game := game_init()
+	fmt.println("main")
+	fmt.println(game)
+
+	game_run(&game)
 }
